@@ -17,6 +17,11 @@ app.config(function ($routeProvider) {
             controller: 'vizViewController'
         })
 
+        .when('/eviz/:seqNum', {
+            templateUrl: 'app/components/EmbeddedVizView/embeddedvizview.partial.html',
+            controller: 'embeddedVizViewController'
+        })
+
         .when('/loading', {
             templateUrl: 'app/components/LoadingView/loadingview.partial.html'
         })

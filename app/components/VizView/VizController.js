@@ -9,7 +9,6 @@ app.controller("vizViewController",
 
         var item = playlistService.getCurrent();
 
-        // How many to display--should be taken from the item
         var imgNum = 10;
         var length;
 

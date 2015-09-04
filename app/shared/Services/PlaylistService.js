@@ -102,24 +102,21 @@ app.factory('playlistService',
                             src = path + mediaFilesExt + data.data['field_js_file'].und[0].uri.replace('public://', '');
 
                             if (data.data['field_js_file'].und[0].filemime == 'application/zip') {
+                                current.type = 'visualizer_pkg';
+
                                 dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.zip', '') + '/index.js';
+                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.zip', '') + '/index.html';
 
                                 $rootScope.loadingMsg = "Unzipping media";
 
                                 cacheService.unzipAndPipe(src, dest, service.processPlaylist);
                             }
 
-                            else if (data.data['field_js_file'].und[0].filemime == 'application/js'){
-                                dest = 'cache/js/' + data.data['field_js_file'].und[0].filename.replace('.txt', '');
-                                current.src = dest;
-
-                                cacheService.getFileAndPipe(src, dest, service.processPlaylist);
-                            }
-
                             else if (data.data['field_js_file'].und[0].filemime == 'application/tar'){
+                                current.type = 'visualizer_pkg';
+
                                 dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tar', '') + '/index.js';
+                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tar', '') + '/index.html';
 
                                 $rootScope.loadingMsg = "Extracting tarball";
 
@@ -127,12 +124,21 @@ app.factory('playlistService',
                             }
 
                             else if (data.data['field_js_file'].und[0].filemime == 'application/tgz'){
+                                current.type = 'visualizer_pkg';
+
                                 dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tgz', '') + '/index.js';
+                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tgz', '') + '/index.html';
 
                                 $rootScope.loadingMsg = "Extracting tarball";
 
                                 cacheService.gunzipAndExtract(src, dest, service.processPlaylist);
+                            }
+
+                            else if (data.data['field_js_file'].und[0].filemime == 'application/js'){
+                                dest = 'cache/js/' + data.data['field_js_file'].und[0].filename.replace('.txt', '');
+                                current.src = dest;
+
+                                cacheService.getFileAndPipe(src, dest, service.processPlaylist);
                             }
 
 
@@ -258,6 +264,12 @@ app.factory('playlistService',
                 case 'visualizer_js':
                     $timeout(function () {
                         $location.path('viz/' + _index)
+                    });
+                    break;
+
+                case 'visualizer_pkg':
+                    $timeout(function () {
+                        $location.path('eviz/' + _index)
                     });
                     break;
 
