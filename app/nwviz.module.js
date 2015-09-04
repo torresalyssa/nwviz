@@ -39,7 +39,8 @@ app.run(function ($rootScope, $location,  $log, playlistService, actv8API) {
         // Note: cannot use file:// with node webkit
         actv8API.setSiteOrigin('http://127.0.0.1:1337');
 
-        actv8API.authorize("admin", "p@ssw0rd")
+        // a8 login info here
+        actv8API.authorize()
 
             .then(function() {
                 playlistService.init("https://commtix.appdelegates.net/ct/");

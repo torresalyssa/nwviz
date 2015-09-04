@@ -45,7 +45,10 @@ app.factory('playlistService',
                 .then(function() {
                     superagent
                         .post(p)
-                        .send({username: 'stubber_viz', password: 'v1zu@l'})
+
+                        // Put in commtix credentials here
+                        .send({})
+
                         .set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
                         .set('Accept', 'application/json')
                         .end(function (err, res) {

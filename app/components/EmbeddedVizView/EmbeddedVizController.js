@@ -1,5 +1,5 @@
 app.controller("embeddedVizViewController",
-    function ( $scope, $log, playlistService, $filter, $http, vizService) {
+    function ( $scope, $log, playlistService, $timeout) {
 
         $log.debug("Loading vizViewController");
 
@@ -10,6 +10,8 @@ app.controller("embeddedVizViewController",
         var item = playlistService.getCurrent();
 
         $scope.vizSrc = item.src;
+
+        $timeout(playlistService.completed, 20000);
 
     });
 
