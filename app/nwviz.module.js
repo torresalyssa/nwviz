@@ -27,7 +27,9 @@ app.config(function($sceDelegateProvider) {
 });
 
 
-app.run(function ($rootScope, $location,  $log, playlistService, actv8API) {
+app.run(function ($rootScope, $location,  $log, playlistService, $timeout, actv8API) {
+
+        var a8Origin = 'http://127.0.0.1:1337';
 
         $log.info("app.RUNning");
 
@@ -36,8 +38,17 @@ app.run(function ($rootScope, $location,  $log, playlistService, actv8API) {
 
         });
 
+        $rootScope.$on('NOT-AUTHORIZED', function() {
+            $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on ' + a8Origin + '.';
+        });
+
+        $rootScope.loadingMsg = 'Logging in to Activ8or';
+        $timeout(function () {
+            $location.path('loading')
+        });
+
         // Note: cannot use file:// with node webkit
-        actv8API.setSiteOrigin('http://127.0.0.1:1337');
+        actv8API.setSiteOrigin(a8Origin);
 
         // a8 login info here
         actv8API.authorize()

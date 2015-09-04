@@ -53,7 +53,8 @@ app.factory('playlistService',
                         .set('Accept', 'application/json')
                         .end(function (err, res) {
                             if(err) {
-                                throw new Error("Superagent login error");
+                                $rootScope.loadingMsg = 'Error logging in to Commtix.';
+                                throw new Error("Superagent Commtix login error");
                             } else {
                                 return res;
                             }
@@ -171,7 +172,7 @@ app.factory('playlistService',
             if (i == _nodes.length) {
                 service.playlistValid = true;
 
-                $rootScope.loadingMsg = '';
+                $rootScope.loadingMsg = 'Playlist successfully loaded.';
 
                 _index = 0;
                 $log.info("Playlist loaded ok: " + path + playlistExt);
@@ -185,10 +186,7 @@ app.factory('playlistService',
             var nodes, tmp;
             path = endpoint;
 
-            $rootScope.loadingMsg = "Logging in";
-            $timeout(function () {
-                $location.path('loading')
-            });
+            $rootScope.loadingMsg = "Logging in to Commtix";
 
             service.login()
 
@@ -209,7 +207,7 @@ app.factory('playlistService',
                         })
 
                         .catch(function () {
-                            $log.error("Could not load playlist");
+                            $rootScope.loadingMsg = "Could not load playlist.";
                             $rootScope.$broadcast('BAD_PLAYLIST');
 
                         })
@@ -277,7 +275,6 @@ app.factory('playlistService',
                     break;
 
                 default:
-
                     //This shouldn't crash in production
                     throw new Error("Malformed JSON, you dope. Unrecognized type: " + nextItem.type);
 
