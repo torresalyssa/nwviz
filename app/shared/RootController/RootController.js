@@ -9,19 +9,10 @@
 
 app.controller("rootController", function ($scope, $log, playlistService, userDefaults) {
 
-        $log.debug("Loading rootController");
-
-
         $scope.$on("PLAYLIST_LOADED", function () {
 
-            $log.info("Playlist loaded, whoohoo!");
+            $log.info("Playlist loaded");
             playlistService.sequence();
-
-        });
-
-        $scope.$on("BAD_PLAYLIST", function () {
-
-            $log.error("Playlist is BAD, crap!");
 
         });
 

@@ -1,8 +1,6 @@
 app.controller("vizViewController",
     function ( $scope, $log, playlistService, $filter, $http, vizService, actv8API ) {
 
-        $log.debug("Loading vizViewController");
-
         $scope.$on('VIZ_DONE', function() {
             playlistService.completed();
         });

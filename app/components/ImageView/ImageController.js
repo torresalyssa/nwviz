@@ -1,15 +1,11 @@
 app.controller("imageViewController",
-               function ($scope, $log, playlistService, $timeout) {
+    function ($scope, $log, playlistService, $timeout) {
 
-                   $log.debug("Loading imageViewController");
+        var item = playlistService.getCurrent();
 
-                   var item = playlistService.getCurrent();
+        $scope.imgSrc = item.src;
 
+        $timeout(playlistService.completed, parseInt(item.duration) * 1000);
 
-                   $scope.imgSrc = item.src;
-
-
-                   $timeout(playlistService.completed, parseInt(item.duration) * 1000);
-
-               });
+    });
 

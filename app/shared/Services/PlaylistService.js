@@ -3,7 +3,7 @@
  */
 
 app.factory('playlistService',
-    function ($rootScope, $location, $timeout, $log, $http, cacheService) {
+    function ($rootScope, $location, $timeout, $log, $http, cacheService, $q) {
         "use strict";
 
         var service = {};
@@ -32,154 +32,31 @@ app.factory('playlistService',
                 })
         }
 
-        function setNewTokenFromLogin(res) {
-
-            $http.defaults.headers.common["X-CSRF-Token"] = res.data.token;
-
-        }
-
 
         service.login = function() {
-            var p = path+ 'api/v1/'+  loginExt;
-            return getToken()
+            var p = path + 'api/v1/' + loginExt;
+            var deferred = $q.defer();
+
+            getToken()
                 .then(function() {
                     superagent
                         .post(p)
 
                         // Put in commtix credentials here
-                        .send({})
+                        .send()
 
                         .set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
                         .set('Accept', 'application/json')
                         .end(function (err, res) {
                             if(err) {
-                                $rootScope.loadingMsg = 'Error logging in to Commtix.';
-                                throw new Error("Superagent Commtix login error");
+                                deferred.reject('Error logging in to Commtix. Make sure credentials are correct.');
                             } else {
-                                return res;
+                                deferred.resolve({data: res});
                             }
                         })
-                })
-        };
+                });
 
-        service.getMediaData = function(nodeNum) {
-
-            $rootScope.loadingMsg = "Loading media";
-
-            var current = {
-                src: undefined,
-                type: undefined,
-                duration: undefined,
-                supported: true
-            };
-
-            var src, dest;
-
-            $http.get(path + mediaExt + nodeNum + '.json')
-
-                .then(function(data) {
-
-                    current.type = data.data.type;
-
-                    switch (current.type) {
-
-                        case 'visualizer_image':
-                            src = path + mediaFilesExt + data.data['field_viz_image'].und[0].uri.replace('public://', '');
-                            dest = 'cache/images/' + data.data['field_viz_image'].und[0].filename;
-
-                            current.src = dest;
-                            current.duration = data.data['field_duration'].und[0].value;
-
-                            cacheService.getFileAndPipe(src, dest, service.processPlaylist);
-                            break;
-
-                        case 'visualizer_video':
-                            src = path + mediaFilesExt + data.data['field_video'].und[0].uri.replace('public://', '');
-                            dest = 'cache/videos/' + data.data['field_video'].und[0].filename;
-
-                            current.src = dest;
-
-                            cacheService.getFileAndPipe(src, dest, service.processPlaylist);
-                            break;
-
-                        case 'visualizer_js':
-                            src = path + mediaFilesExt + data.data['field_js_file'].und[0].uri.replace('public://', '');
-
-                            if (data.data['field_js_file'].und[0].filemime == 'application/zip') {
-                                current.type = 'visualizer_pkg';
-
-                                dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.zip', '') + '/index.html';
-
-                                $rootScope.loadingMsg = "Unzipping media";
-
-                                cacheService.unzipAndPipe(src, dest, service.processPlaylist);
-                            }
-
-                            else if (data.data['field_js_file'].und[0].filemime == 'application/tar'){
-                                current.type = 'visualizer_pkg';
-
-                                dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tar', '') + '/index.html';
-
-                                $rootScope.loadingMsg = "Extracting tarball";
-
-                                cacheService.extractTarAndPipe(src, dest, service.processPlaylist);
-                            }
-
-                            else if (data.data['field_js_file'].und[0].filemime == 'application/tgz'){
-                                current.type = 'visualizer_pkg';
-
-                                dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tgz', '') + '/index.html';
-
-                                $rootScope.loadingMsg = "Extracting tarball";
-
-                                cacheService.gunzipAndExtract(src, dest, service.processPlaylist);
-                            }
-
-                            else if (data.data['field_js_file'].und[0].filemime == 'application/js'){
-                                dest = 'cache/js/' + data.data['field_js_file'].und[0].filename.replace('.txt', '');
-                                current.src = dest;
-
-                                cacheService.getFileAndPipe(src, dest, service.processPlaylist);
-                            }
-
-
-                            break;
-
-                        default:
-                            current.supported = false;
-                            $log.error("Unsupported type (" + current.type + ") detected in playlist.");
-                            break;
-
-                    }
-
-                    if(current.supported) {
-                        service.playlist.push(current);
-                    }
-                })
-        };
-
-        service.processPlaylist = function() {
-
-            var i = _i;
-
-            if (i < _nodes.length) {
-                service.getMediaData(parseInt(_nodes[i]));
-            }
-
-            if (i == _nodes.length) {
-                service.playlistValid = true;
-
-                $rootScope.loadingMsg = 'Playlist successfully loaded.';
-
-                _index = 0;
-                $log.info("Playlist loaded ok: " + path + playlistExt);
-                $rootScope.$broadcast('PLAYLIST_LOADED');
-            }
-
-            _i++;
+            return deferred.promise;
         };
 
         service.init = function (endpoint) {
@@ -204,16 +81,235 @@ app.factory('playlistService',
                             $rootScope.loadingMsg = "Processing playlist";
 
                             service.processPlaylist();
+
+                        }, function(error) {
+                            $rootScope.loadingMsg = "Could not load playlist. Make sure you have a playlist up on " + endpoint;
                         })
 
-                        .catch(function () {
-                            $rootScope.loadingMsg = "Could not load playlist.";
-                            $rootScope.$broadcast('BAD_PLAYLIST');
 
-                        })
+                }, function(error) {
+                    $log.error(error);
+                    $rootScope.loadingMsg = error;
                 })
 
         };
+
+        service.processPlaylist = function() {
+
+            var i = _i;
+            var n;
+
+            if (i < _nodes.length) {
+                n = i + 1;
+                $rootScope.loadingMsg = 'Loading file ' + n + ' out of ' + _nodes.length;
+                service.getMediaData(parseInt(_nodes[i]));
+            }
+
+            if (i == _nodes.length) {
+
+                if (service.playlist.length > 0) {
+                    service.playlistValid = true;
+
+                    _index = 0;
+                    $rootScope.$broadcast('PLAYLIST_LOADED');
+                }
+
+                else {
+                    service.playlistValid = false;
+                    $log.error('Media for playlist did not load properly.');
+                    $rootScope.loadingMsg = 'Media for playlist did not load properly. Either the playlist is empty or there was an issue getting the individual media items. Check https://commtix.appdelegates.net to make sure you have a valid playlist loaded.';
+                }
+            }
+
+            _i++;
+        };
+
+        service.getMediaData = function(nodeNum) {
+
+            var current = {
+                src: undefined,
+                type: undefined,
+                duration: 30000,
+                supported: true
+            };
+
+            var src, dest, filetype;
+
+            $http.get(path + mediaExt + nodeNum + '.json')
+
+                .then(function(data) {
+
+                    current.type = data.data.type;
+
+                    switch (current.type) {
+
+                        case 'visualizer_image':
+                            src = path + mediaFilesExt + data.data['field_viz_image'].und[0].uri.replace('public://', '');
+                            dest = 'cache/images/' + data.data['field_viz_image'].und[0].filename;
+
+                            current.src = dest;
+                            current.duration = data.data['field_duration'].und[0].value;
+
+                            cacheService.getFileAndPipe(src, dest)
+                                .then(
+                                function(success) {
+                                    $log.info(success);
+                                    service.processPlaylist();
+                                },
+                                function(error) {
+                                    $log.error(error);
+                                    current.supported = false;
+                                    $rootScope.loadingMsg = 'Image file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
+                                    //service.processPlaylist();
+                                });
+                            break;
+
+                        case 'visualizer_video':
+                            src = path + mediaFilesExt + data.data['field_video'].und[0].uri.replace('public://', '');
+                            dest = 'cache/videos/' + data.data['field_video'].und[0].filename;
+
+                            current.src = dest;
+
+                            cacheService.getFileAndPipe(src, dest)
+                                .then(
+                                function(success) {
+                                    $log.info(success);
+                                    service.processPlaylist();
+                                },
+                                function(error) {
+                                    $log.error(error);
+                                    current.supported = false;
+                                    $rootScope.loadingMsg = 'Video file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
+                                    //service.processPlaylist();
+                                });
+                            break;
+
+                        case 'visualizer_js':
+                            src = path + mediaFilesExt + data.data['field_js_file'].und[0].uri.replace('public://', '');
+                            filetype = data.data['field_js_file'].und[0].filemime;
+
+                            if (filetype == 'application/zip') {
+                                current.type = 'visualizer_pkg';
+
+                                dest = 'cache/viz';
+                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.zip', '') + '/index.html';
+
+                                cacheService.unzipAndPipe(src, dest)
+                                    .then(
+                                    function(success) {
+                                        $log.info(success);
+                                        service.processPlaylist();
+                                    },
+                                    function(error) {
+                                        $log.error(error);
+                                        current.supported = false;
+
+                                        if (error == 'GET_ERROR') {
+                                            $rootScope.loadingMsg = 'Visualizer file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
+                                        }
+                                        else {
+                                            $rootScope.loadingMsg = 'Error unzipping file ' + src + '. Try restarting or using a .tgz file instead.';
+                                        }
+
+                                        //service.processPlaylist();
+                                    });
+                            }
+
+                            else if (filetype == 'application/x-tar'){
+                                current.type = 'visualizer_pkg';
+
+                                dest = 'cache/viz';
+                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tar', '') + '/index.html';
+
+                                cacheService.extractTarAndPipe(src, dest)
+                                    .then(
+                                    function(success) {
+                                        $log.info(success);
+                                        service.processPlaylist();
+                                    },
+                                    function(error) {
+                                        $log.error(error);
+                                        current.supported = false;
+
+                                        if (error == 'GET_ERROR') {
+                                            $rootScope.loadingMsg = 'Visualizer file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
+                                        }
+                                        else {
+                                            $rootScope.loadingMsg = 'Error extracting file ' + src + '. Try restarting.';
+                                        }
+
+                                        //service.processPlaylist();
+                                    });
+                            }
+
+                            else if (filetype == 'application/x-gtar'){
+                                current.type = 'visualizer_pkg';
+
+                                dest = 'cache/viz';
+                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tgz', '') + '/index.html';
+
+                                cacheService.gunzipAndExtract(src, dest)
+                                    .then(
+                                    function(success) {
+                                        $log.info(success);
+                                        service.processPlaylist();
+                                    },
+                                    function(error) {
+                                        $log.error(error);
+                                        current.supported = false;
+
+                                        if (error == 'GET_ERROR') {
+                                            $rootScope.loadingMsg = 'Visualizer file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
+                                        }
+                                        else {
+                                            $rootScope.loadingMsg = 'Error extracting file ' + src + '. Try restarting.';
+                                        }
+
+                                        //service.processPlaylist();
+                                    });
+                            }
+
+                            else if (filetype == 'application/js'){
+                                dest = 'cache/js/' + data.data['field_js_file'].und[0].filename.replace('.txt', '');
+                                current.src = dest;
+
+                                cacheService.getFileAndPipe(src, dest)
+                                    .then(
+                                    function(success) {
+                                        $log.info(success);
+                                        service.processPlaylist();
+                                    },
+                                    function(error) {
+                                        $log.error(error);
+                                        current.supported = false;
+                                        $rootScope.loadingMsg = 'JS file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
+                                        //service.processPlaylist();
+                                    });
+                            }
+
+                            break;
+
+                        default:
+                            current.supported = false;
+                            $log.error("Unsupported type (" + current.type + ") detected in playlist.");
+                            break;
+
+                    }
+
+                    if(current.supported) {
+                        service.playlist.push(current);
+                    }
+
+                },
+
+                function(error) {
+
+                    $log.error('Error getting media information from: ' + path + mediaExt + nodeNum + '.json' + '\nProcessing next media item.');
+                    service.processPlaylist();
+
+                })
+        };
+
 
         service.getLength = function () {
             return service.playlist.length;

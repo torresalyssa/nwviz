@@ -5,7 +5,9 @@
   "node-remote": "somesource",
   "nodejs": true,
   "dependencies": {
+    "fs-extra": "^0.24.0",
     "gunzip-maybe": "^1.2.1",
+    "rimraf": "^2.4.3",
     "superagent": "^1.3.0",
     "tar-fs": "^1.8.1",
     "unzip2": "^0.2.5"

@@ -14,8 +14,8 @@ object {
     height: 100vh;
 }
 
-.content-holder {
-    background-color: black;
+.loading-content {
+    background-color: white;
     position: fixed;
     top: 0;
     left: 0;
@@ -23,15 +23,31 @@ object {
     height: 100vh;
 }
 
+.loading-img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 15%;
+}
+
 .message {
     z-index: 1;
     position: fixed;
     width: 100%;
     height: 100%;
-    top: 65%;
+    top: 60%;
     text-align: center;
-    color: gray;
+    color: darkgray;
     font-family: Verdana, sans-serif;
+}
+
+.content-holder {
+    background-color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
 }
 
 .viz-img {
