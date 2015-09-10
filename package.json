@@ -1,9 +1,20 @@
 {
   "main": "index.html",
   "name": "AngularViz",
+  "version": "0.0.1",
   "description": "Angular visualizer",
   "node-remote": "somesource",
   "nodejs": true,
+  "window": {
+    "title": "AppDelegates Visualizer",
+    "always-on-top": true
+  },
+
+  "window": {
+    "fullscreen": true,
+    "toolbar": false
+  },
+
   "dependencies": {
     "fs-extra": "^0.24.0",
     "gunzip-maybe": "^1.2.1",

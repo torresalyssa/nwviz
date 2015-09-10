@@ -13,12 +13,14 @@ app.factory('playlistService',
         var path;
         var playlistExt = 'viz-playlist-rest';
         var tokenExt = 'services/session/token';
-        var loginExt = 'user/login.json';
+        var loginExt = 'api/v1/user/login.json';
         var mediaExt = 'api/v1/node/';
         var mediaFilesExt = 'sites/default/files/';
 
         var _nodes;
         var _i;
+
+        var _stop = false;
 
         service.playlist = [];
         service.playlistValid = false;
@@ -34,13 +36,13 @@ app.factory('playlistService',
 
 
         service.login = function() {
-            var p = path + 'api/v1/' + loginExt;
+
             var deferred = $q.defer();
 
             getToken()
                 .then(function() {
                     superagent
-                        .post(p)
+                        .post(path + loginExt)
 
                         // Put in commtix credentials here
                         .send()
@@ -49,7 +51,7 @@ app.factory('playlistService',
                         .set('Accept', 'application/json')
                         .end(function (err, res) {
                             if(err) {
-                                deferred.reject('Error logging in to Commtix. Make sure credentials are correct.');
+                                deferred.reject('Error logging in to the content management system. Make sure credentials are correct. Press ESC to configure CMS address.');
                             } else {
                                 deferred.resolve({data: res});
                             }
@@ -342,6 +344,12 @@ app.factory('playlistService',
         service.sequence = function () {
 
             var nextItem = service.getCurrent();
+
+            if(_stop) {
+                $log.info("Playlist stopped")
+                return;
+            }
+
             $log.info("Getting ready to play: " + nextItem.src);
 
             switch (nextItem.type) {
@@ -384,6 +392,14 @@ app.factory('playlistService',
             service.next();
             service.sequence();
 
+        };
+
+        service.stop = function() {
+            _stop = true;
+        };
+
+        service.resume = function() {
+            _stop = false;
         };
 
         return service;

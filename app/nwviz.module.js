@@ -27,19 +27,20 @@ app.config(function($sceDelegateProvider) {
 });
 
 
-app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8API, cacheService) {
+app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8API, cacheService, userDefaults) {
 
-        var a8Origin = 'http://127.0.0.1:1337';
+        var a8Ip = userDefaults.getStringForKey("a8Ip", "127.0.0.1");
+        var cmsAddr = userDefaults.getStringForKey("cmsAddr", "https://commtix.appdelegates.net/ct/");
+        var venueId = userDefaults.getStringForKey("venueId", "0");
 
-        $log.info("app.RUNning");
-
+        var a8Origin = 'http://' + a8Ip + ':1337';
 
         $rootScope.$on('NOT-AUTHORIZED', function() {
-            $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on ' + a8Origin + '.';
+            $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on ' + a8Origin + '. Press ESC to configure options.';
         });
 
         $rootScope.$on('CACHE_EMPTY', function() {
-            playlistService.init("https://commtix.appdelegates.net/ct/");
+            playlistService.init(cmsAddr);
         });
 
         $rootScope.loadingMsg = 'Logging in to Activ8or';

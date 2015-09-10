@@ -41,6 +41,54 @@ object {
     font-family: Verdana, sans-serif;
 }
 
+.settings-content {
+    background-color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+.settings-content .input-group {
+    margin-top: 30px;
+    margin-left: 30px;
+}
+
+.url-input {
+    width: 300px;
+}
+
+.integer-input {
+    width: 30px;
+}
+
+.ip-input {
+    width: 75px;
+}
+
+.settings-content button {
+    border-style: none;
+    background-color:#419aba;
+    border-radius:3px;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family: Verdana, sans-serif;
+    font-size:15px;
+    padding:6px 15px;
+}
+
+
+.settings-content p {
+    font-family: Verdana, sans-serif;
+}
+
+.settings-content .input-group-addon {
+    font-size: 80%;
+    color: darkgray;
+}
+
 .content-holder {
     background-color: black;
     position: fixed;

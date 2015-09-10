@@ -7,14 +7,24 @@
  */
 
 
-app.controller("rootController", function ($scope, $log, playlistService, userDefaults) {
+app.controller("rootController", function ($scope, $log, playlistService, $timeout, $location) {
 
-        $scope.$on("PLAYLIST_LOADED", function () {
+    $scope.$on("PLAYLIST_LOADED", function () {
 
-            $log.info("Playlist loaded");
-            playlistService.sequence();
-
-        });
+        $log.info("Playlist loaded");
+        playlistService.sequence();
 
     });
+
+    $scope.onKeyDown = function($event) {
+        var keyCode = window.event ? $event.keyCode : $event.which;
+
+        // if ESC key is pressed
+        if (keyCode === 27) {
+            playlistService.stop();
+            $timeout(function () { $location.path('config') });
+        }
+    }
+
+});
 

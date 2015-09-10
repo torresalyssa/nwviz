@@ -1,0 +1,27 @@
+<div class="settings-content" ng-show="ready">
+
+    <div class="input-group">
+        <p>Activ8or IP Address:&nbsp;&nbsp;
+            <span class="input-group-addon">http://</span>
+            <input type="text" class="ip-input" ng-model="vizSettings.a8Ip" value="{{vizSettings.a8Ip}}">
+            <span class="input-group-addon">:1337</span>
+        </p>
+    </div>
+
+    <div class="input-group">
+        <p>CMS Address:&nbsp;&nbsp;
+            <input type="text" class="url-input" ng-model="vizSettings.cmsAddr" value="{{vizSettings.cmsAddr}}">
+        </p>
+    </div>
+
+    <div class="input-group">
+        <p>Venue ID:&nbsp;&nbsp;
+            <input type="text" class="integer-input" ng-model="vizSettings.venueId" value="{{vizSettings.venueId}}">
+        </p>
+    </div>
+
+    <div class="input-group">
+        <button ng-click="onApply()">Apply</button>
+    </div>
+
+</div>

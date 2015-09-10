@@ -26,6 +26,11 @@ app.config(function ($routeProvider) {
             templateUrl: 'app/components/LoadingView/loadingview.partial.html'
         })
 
+        .when('/config', {
+            templateUrl: 'app/components/ConfigView/configview.partial.html',
+            controller: 'configViewController'
+        })
+
         .otherwise('/');
 
 });

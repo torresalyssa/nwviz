@@ -30,20 +30,21 @@
     <script src="app/components/VideoView/VideoController.js"></script>
     <script src="app/components/VizView/VizController.js"></script>
     <script src="app/components/EmbeddedVizView/EmbeddedVizController.js"></script>
+    <script src="app/components/ConfigView/ConfigController.js"></script>
 
     <!-- Services -->
     <script src="app/shared/Services/PlaylistService.js"></script>
     <script src="app/shared/Services/VizService.js"></script>
     <script src="app/shared/Services/ngActv8API.js"></script>
     <script src="app/shared/Services/CacheService.js"></script>
+    <script src="app/shared/UserDefaults/UserDefaultsService.js"></script>
 
     <link href="assets/css/style.css" rel="stylesheet">
-
 
     <title>AppDelegates Visualizer</title>
 </head>
 
-<body ng-controller="rootController" ng-cloak>
+<body ng-controller="rootController" ng-cloak ng-keydown="onKeyDown($event)">
 
 <canvas id="renderCanvas"></canvas>
 <ng-view class="fade"></ng-view>
