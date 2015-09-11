@@ -2,12 +2,12 @@
 NW.js visualizer
 
 ## To get it up and running
-- Put in Activ8or credentials in **line 59** of app/nwviz.module.js:  
+- Put in Activ8or credentials in **line 59** of **app/nwviz.module.js**:  
    ```javascript
    actv8API.authorize(username, password)
    ```
    
-- Put in CMS credentials in **line 48** of app/shared/Services/PlaylistService.js:  
+- Put in CMS credentials in **line 48** of **app/shared/Services/PlaylistService.js**:  
    ```javascript
    .send({username: username, password: password})
    ```
