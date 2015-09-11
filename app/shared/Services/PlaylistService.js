@@ -44,7 +44,7 @@ app.factory('playlistService',
                     superagent
                         .post(path + loginExt)
 
-                        // Put in commtix credentials here
+                        // Put CMS credentials here
                         .send()
 
                         .set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
