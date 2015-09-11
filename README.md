@@ -12,7 +12,7 @@ NW.js visualizer
    .send({username: username, password: password})
    ```
    
-- To run the app, type in the path to the nwjs executable and then the path to the nwviz app:
+- To run the app from the terminal, type in the path to the nwjs executable and then the path to the nwviz app:
     ```
     /Applications/nwjs.app/Contents/MacOS/nwjs /path/to/nwviz
     ```
