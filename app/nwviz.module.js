@@ -35,6 +35,10 @@ app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8A
 
         var a8Origin = 'http://' + a8Ip + ':1337';
 
+        userDefaults.setStringForKey('a8Ip', a8Ip);
+        userDefaults.setStringForKey('cmsAddr', cmsAddr);
+        userDefaults.setStringForKey('venueId', venueId);
+
         $rootScope.$on('NOT-AUTHORIZED', function() {
             $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on ' + a8Origin + '. Press ESC to configure options.';
         });
