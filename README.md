@@ -17,7 +17,8 @@ NW.js visualizer
 
 - For JS visualizers to work properly:
   - They must have an index.html file in their root directory. 
-  - If they login to Activ8or to get data, they must first use the UserDefaultsService to get "a8Ip", put the address in NW-compatible format, and set Activ8or's site origin: ```javascript
+  - If they login to Activ8or to get data, they must first use the UserDefaultsService to get "a8Ip", put the address in NW-compatible format, and set Activ8or's site origin:
+  ```javascript
   var a8Ip = userDefaults.getStringForKey("a8Ip", "127.0.0.1"); 
   var a8Origin = 'http://' + a8Ip + ':1337';
   actv8API.setSiteOrigin(a8Origin);
