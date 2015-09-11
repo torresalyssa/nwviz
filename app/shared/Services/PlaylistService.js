@@ -169,6 +169,12 @@ app.factory('playlistService',
                         case 'visualizer_video':
                             src = path + mediaFilesExt + data.data['field_video'].und[0].uri.replace('public://', '');
                             dest = 'cache/videos/' + data.data['field_video'].und[0].filename;
+                            filetype = data.data['field_video'].und[0].filemime;
+
+                            if (filetype == 'video/mp4') {
+                                $rootScope.loadingMsg = 'The video ' + data.data['field_video'].und[0].filename + ' is an mp4 file and is not supported by NW.js. Please convert it to VP8 (.webm, .mkv, .mov).';
+                                break;
+                            }
 
                             current.src = dest;
 
