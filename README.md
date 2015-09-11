@@ -11,6 +11,11 @@ NW.js visualizer
    ```javascript
    .send({username: username, password: password})
    ```
+   
+- To run the app, type in the path to the nwjs executable and then the path to the nwviz app:
+    ```
+    /Applications/nwjs.app/Contents/MacOS/nwjs /path/to/nwviz
+    ```
   
 ## Additional notes
 - Press ESC at any point to view and change the A8 IP address, the CMS address, and the venue ID.
