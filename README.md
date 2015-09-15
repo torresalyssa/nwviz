@@ -2,7 +2,7 @@
 NW.js visualizer
 
 ## To get it up and running
-- Put in Activ8or credentials in **line 59** of **app/nwviz.module.js**:  
+- Put in Activ8or credentials in **line 72** of **app/nwviz.module.js**:  
    ```javascript
    actv8API.authorize(username, password)
    ```
