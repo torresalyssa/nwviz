@@ -67,7 +67,7 @@ app.factory('playlistService',
             var nodes, tmp;
             path = endpoint;
 
-            $rootScope.loadingMsg = "Logging in to Commtix";
+            $rootScope.loadingMsg = "Logging in to CMS";
 
             service.login()
 

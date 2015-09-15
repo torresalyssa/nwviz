@@ -55,6 +55,17 @@ object {
     margin-left: 30px;
 }
 
+.settings-content input {
+    padding: 5px;
+    border: solid 2.75px #c9c9c9;
+    transition: border 0.3s;
+}
+
+.settings-content input:focus {
+    border: solid 2.75px #969696;
+    outline: none;
+}
+
 .url-input {
     width: 300px;
 }
