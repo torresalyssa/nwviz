@@ -10,13 +10,12 @@ app.factory('cacheService',
             fs.emptyDir('cache', function(err) {
 
                 if (!err) {
-                    $rootScope.loadingMsg = 'Cache successfully emptied.';
                     $rootScope.$broadcast('CACHE_EMPTY');
                 }
 
                 else {
-                    $rootScope.loadingMsg = 'Error emptying cache. Try restarting.';
                     $log.error('Error emptying cache: ' + err);
+                    $rootScope.$broadcast('CACHE_NOT_EMPTY');
                 }
 
             });

@@ -11,6 +11,8 @@ app.controller("embeddedVizViewController",
         $scope.vizMsg = '';
 
 
+        //TODO: Find a way to detect errors in the embedded page, or does that error handling need to come from the js viz itself?
+
         fs.stat(item.src, function(err){
             var vizName = item.src.replace('cache/viz/', '').replace('/index.html', '');
             if (err) {
@@ -18,7 +20,7 @@ app.controller("embeddedVizViewController",
             }
 
             else {
-                $scope.vizMsg = "Error with embedding the visualizer. Check that the JS visualizer " + vizName + " is node-webkit compatible.";
+                $scope.vizMsg = "Error embedding the visualizer. Check that the JS visualizer " + vizName + " is node-webkit compatible.";
 
                 $log.info("HEY! Are things not looking the way you think they should? If accessing Activ8or in the visualizer, you must check userDefaults for 'a8Ip' and set that as Activ8or's site origin using" +
                     " the node-webkit compatible format http://[a8Ip]:1337.");
@@ -36,7 +38,7 @@ app.controller("embeddedVizViewController",
                 item.duration = object.duration;
             }
 
-            $timeout(playlistService.completed, parseInt(item.duration));
+            $timeout(playlistService.completed, parseInt(item.duration) * 1000);
         })
 
     });

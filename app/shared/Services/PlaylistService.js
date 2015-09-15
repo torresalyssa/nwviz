@@ -51,11 +51,13 @@ app.factory('playlistService',
                         .set('Accept', 'application/json')
                         .end(function (err, res) {
                             if(err) {
-                                deferred.reject('Error logging in to the content management system. Make sure credentials are correct. Press ESC to configure CMS address.');
+                                deferred.reject('Error logging in to the content management system. Make sure credentials and CMS address are correct. Press ESC to configure CMS address.');
                             } else {
                                 deferred.resolve({data: res});
                             }
                         })
+                }, function(error) {
+                    deferred.reject('Error logging in to the content management system. Make sure credentials are correct. Press ESC to configure CMS address.');
                 });
 
             return deferred.promise;
@@ -74,7 +76,21 @@ app.factory('playlistService',
 
                         .then(function (data) {
 
-                            tmp = data.data.nodes[0].node['Media Items'];
+                            try {
+                                tmp = data.data.nodes[0].node['Media Items'];
+                            }
+                            catch(err) {
+                                $log.error("Error: Playlist JSON is malformed. " + err);
+                                $rootScope.loadingMsg = "Error: Playlist JSON at " + path + playlistExt + " is malformed.";
+                                return;
+                            }
+
+                            if (typeof tmp !== 'string') {
+                                $log.error("Error: Playlist JSON is malformed. ");
+                                $rootScope.loadingMsg = "Error: Playlist JSON at " + path + playlistExt + " is malformed.";
+                                return;
+                            }
+
                             nodes = tmp.split(" ");
 
                             _nodes = nodes;
@@ -119,7 +135,7 @@ app.factory('playlistService',
                 else {
                     service.playlistValid = false;
                     $log.error('Media for playlist did not load properly.');
-                    $rootScope.loadingMsg = 'Media for playlist did not load properly. Either the playlist is empty or there was an issue getting the individual media items. Check https://commtix.appdelegates.net to make sure you have a valid playlist loaded.';
+                    $rootScope.loadingMsg = 'Media for playlist did not load properly. Either the playlist is empty or there was an issue getting the individual media items. Check '+  path + ' to make sure you have a valid playlist loaded.';
                 }
             }
 
@@ -131,26 +147,49 @@ app.factory('playlistService',
             var current = {
                 src: undefined,
                 type: undefined,
-                duration: 30000,
+                duration: 30,
                 supported: true
             };
 
-            var src, dest, filetype;
+            var src, dest, filetype, filename;
 
             $http.get(path + mediaExt + nodeNum + '.json')
 
                 .then(function(data) {
 
-                    current.type = data.data.type;
+                    try {
+                        current.type = data.data.type;
+                    }
+                    catch(err) {
+                        $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. " + err);
+                        $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                        $timeout(service.processPlaylist, 3000);
+                        return;
+                    }
+
+                    if (typeof current.type !== 'string') {
+                        $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
+                        $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                        $timeout(service.processPlaylist, 3000);
+                        return;
+                    }
 
                     switch (current.type) {
 
                         case 'visualizer_image':
-                            src = path + mediaFilesExt + data.data['field_viz_image'].und[0].uri.replace('public://', '');
-                            dest = 'cache/images/' + data.data['field_viz_image'].und[0].filename;
+                            try {
+                                src = path + mediaFilesExt + data.data['field_viz_image'].und[0].uri.replace('public://', '');
+                                dest = 'cache/images/' + data.data['field_viz_image'].und[0].filename;
+                                current.duration = data.data['field_duration'].und[0].value ? data.data['field_duration'].und[0].value : 5;
+                            }
+                            catch(err) {
+                                $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
+                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                                $timeout(service.processPlaylist, 3000);
+                                return;
+                            }
 
                             current.src = dest;
-                            current.duration = data.data['field_duration'].und[0].value;
 
                             cacheService.getFileAndPipe(src, dest)
                                 .then(
@@ -162,14 +201,23 @@ app.factory('playlistService',
                                     $log.error(error);
                                     current.supported = false;
                                     $rootScope.loadingMsg = 'Image file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
-                                    //service.processPlaylist();
+                                    //$timeout(service.processPlaylist, 3000);
                                 });
                             break;
 
                         case 'visualizer_video':
-                            src = path + mediaFilesExt + data.data['field_video'].und[0].uri.replace('public://', '');
-                            dest = 'cache/videos/' + data.data['field_video'].und[0].filename;
-                            filetype = data.data['field_video'].und[0].filemime;
+
+                            try {
+                                src = path + mediaFilesExt + data.data['field_video'].und[0].uri.replace('public://', '');
+                                dest = 'cache/videos/' + data.data['field_video'].und[0].filename;
+                                filetype = data.data['field_video'].und[0].filemime;
+                            }
+                            catch(err) {
+                                $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
+                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                                $timeout(service.processPlaylist, 3000);
+                                return;
+                            }
 
                             if (filetype == 'video/mp4') {
                                 $rootScope.loadingMsg = 'The video ' + data.data['field_video'].und[0].filename + ' is an mp4 file and is not supported by NW.js. Please convert it to VP8 (.webm, .mkv, .mov).';
@@ -188,19 +236,36 @@ app.factory('playlistService',
                                     $log.error(error);
                                     current.supported = false;
                                     $rootScope.loadingMsg = 'Video file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
-                                    //service.processPlaylist();
+                                    //$timeout(service.processPlaylist, 3000);
                                 });
                             break;
 
                         case 'visualizer_js':
-                            src = path + mediaFilesExt + data.data['field_js_file'].und[0].uri.replace('public://', '');
-                            filetype = data.data['field_js_file'].und[0].filemime;
+
+                            try {
+                                src = path + mediaFilesExt + data.data['field_js_file'].und[0].uri.replace('public://', '');
+                                filetype = data.data['field_js_file'].und[0].filemime;
+                                filename = data.data['field_js_file'].und[0].filename;
+                            }
+                            catch(err) {
+                                $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
+                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                                $timeout(service.processPlaylist, 3000);
+                                return;
+                            }
+
+                            if (typeof filename !== 'string') {
+                                $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
+                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                                $timeout(service.processPlaylist, 3000);
+                                return;
+                            }
 
                             if (filetype == 'application/zip') {
                                 current.type = 'visualizer_pkg';
 
                                 dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.zip', '') + '/index.html';
+                                current.src = dest + '/' + filename.replace('.zip', '') + '/index.html';
 
                                 cacheService.unzipAndPipe(src, dest)
                                     .then(
@@ -227,7 +292,7 @@ app.factory('playlistService',
                                 current.type = 'visualizer_pkg';
 
                                 dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tar', '') + '/index.html';
+                                current.src = dest + '/' + filename.replace('.tar', '') + '/index.html';
 
                                 cacheService.extractTarAndPipe(src, dest)
                                     .then(
@@ -254,7 +319,7 @@ app.factory('playlistService',
                                 current.type = 'visualizer_pkg';
 
                                 dest = 'cache/viz';
-                                current.src = dest + '/' + data.data['field_js_file'].und[0].filename.replace('.tgz', '') + '/index.html';
+                                current.src = dest + '/' + filename.replace('.tgz', '') + '/index.html';
 
                                 cacheService.gunzipAndExtract(src, dest)
                                     .then(
@@ -278,7 +343,7 @@ app.factory('playlistService',
                             }
 
                             else if (filetype == 'application/js'){
-                                dest = 'cache/js/' + data.data['field_js_file'].und[0].filename.replace('.txt', '');
+                                dest = 'cache/js/' + filename.replace('.txt', '');
                                 current.src = dest;
 
                                 cacheService.getFileAndPipe(src, dest)
@@ -293,6 +358,13 @@ app.factory('playlistService',
                                         $rootScope.loadingMsg = 'JS file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
                                         //service.processPlaylist();
                                     });
+                            }
+
+                            else {
+                                $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
+                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                                $timeout(service.processPlaylist, 3000);
+                                return;
                             }
 
                             break;
@@ -311,9 +383,9 @@ app.factory('playlistService',
                 },
 
                 function(error) {
-
-                    $log.error('Error getting media information from: ' + path + mediaExt + nodeNum + '.json' + '\nProcessing next media item.');
-                    service.processPlaylist();
+                    $rootScope.loadingMsg = "Error getting media at " + path + mediaExt + nodeNum + '.json.' + ' Processing next item.';
+                    $log.error('Error getting media information from: ' + path + mediaExt + nodeNum + '.json.' + '\nProcessing next media item.');
+                    $timeout(service.processPlaylist, 3000);
 
                 })
         };

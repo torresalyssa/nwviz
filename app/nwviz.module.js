@@ -24,10 +24,18 @@ app.config(function($sceDelegateProvider) {
         'self',
         'https://commtix.appdelegates.net/**'
     ]);
+
 });
 
 
-app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8API, cacheService, userDefaults) {
+app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, actv8API, cacheService, userDefaults) {
+
+        var cmsUrl = userDefaults.getStringForKey("cmsAddr", "https://commtix.appdelegates.net/ct/");
+
+        if (cmsUrl) {
+            cmsUrl += cmsUrl.slice(-1) == '/' ? '**' : '/**';
+            $sce.trustAsResourceUrl(cmsUrl);
+        }
 
         var a8Ip = userDefaults.getStringForKey("a8Ip", "127.0.0.1");
         var cmsAddr = userDefaults.getStringForKey("cmsAddr", "https://commtix.appdelegates.net/ct/");
@@ -44,7 +52,12 @@ app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8A
         });
 
         $rootScope.$on('CACHE_EMPTY', function() {
+            $rootScope.loadingMsg = 'Cache successfully emptied.';
             playlistService.init(cmsAddr);
+        });
+
+        $rootScope.$on('CACHE_NOT_EMPTY', function() {
+            $rootScope.loadingMsg = 'Error emptying cache. Try restarting.';
         });
 
         $rootScope.loadingMsg = 'Logging in to Activ8or';

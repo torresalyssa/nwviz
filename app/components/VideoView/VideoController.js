@@ -3,6 +3,8 @@ app.controller("videoViewController",
 
         var item = playlistService.getCurrent();
 
+        $scope.currentItem = item;
+
         $scope.vidSrc = item.src;
 
         $scope.videoDone = function() {

@@ -29,7 +29,7 @@ NW.js visualizer
   actv8API.setSiteOrigin(a8Origin);
   ```
     
-- JS visualizers should additionally have an info.json file in their root directory with a duration (in ms) for how long to display the visualizer. The app will default to displaying a visualizer for 30 seconds.
+- JS visualizers should additionally have an info.json file in their root directory with a duration (in sec) for how long to display the visualizer. The app will default to displaying a visualizer for 30 seconds.
 
 - The streaming unzip process is weird and not very reliable, so .tgz compressed files for the JS visualizers should be used instead.
 
