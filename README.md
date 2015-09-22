@@ -34,3 +34,6 @@ NW.js visualizer
 - The streaming unzip process is weird and not very reliable, so .tgz compressed files for the JS visualizers should be used instead.
 
 - NW.js does not support mp4 files, so convert videos to VP8 to use with this app (.webm, .mkv, .mov).
+
+## Issues
+- Right now, the JS visualizers are displayed for a certain amount of time (specified in their info.json file). For some visualizers, it might make more sense to have them display based on some other metric. To do this, there must be some sort of communication between the embedded viz and the app so the app can listen for when the viz signals it is done.
