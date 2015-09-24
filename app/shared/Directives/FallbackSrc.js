@@ -14,7 +14,7 @@ app.directive('fallbackSrc', function($timeout, $location) {
                     scope.currentItem.duration = 3;
 
                     $timeout(function () {
-                        $location.path('image/' + 9999)
+                        $location.path('image/9999')
                     });
                 }
             });

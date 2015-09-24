@@ -35,7 +35,7 @@ app.factory('playlistService',
         }
 
 
-        service.login = function() {
+        service.login = function(configs) {
 
             var deferred = $q.defer();
 
@@ -44,8 +44,7 @@ app.factory('playlistService',
                     superagent
                         .post(path + loginExt)
 
-                        // Put CMS credentials here
-                        .send()
+                        .send({username: configs.cmsuname, password: configs.cmspwd})
 
                         .set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
                         .set('Accept', 'application/json')
@@ -63,13 +62,13 @@ app.factory('playlistService',
             return deferred.promise;
         };
 
-        service.init = function (endpoint) {
+        service.init = function (endpoint, configs) {
             var nodes, tmp;
             path = endpoint;
 
             $rootScope.loadingMsg = "Logging in to CMS";
 
-            service.login()
+            service.login(configs)
 
                 .then(function () {
                     $http.get(path + playlistExt)
@@ -424,7 +423,7 @@ app.factory('playlistService',
             var nextItem = service.getCurrent();
 
             if(_stop) {
-                $log.info("Playlist stopped")
+                $log.info("Playlist stopped");
                 return;
             }
 

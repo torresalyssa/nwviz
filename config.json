@@ -1,0 +1,10 @@
+{
+  "a8uname": "username",
+  "a8pwd": "password",
+  "cmsuname": "username",
+  "cmspwd": "password",
+
+  "defaultCmsAddr": "https://commtix.appdelegates.net/ct/",
+  "defaultVenueId": "0",
+  "defaultA8Ip": "127.0.0.1"
+}
