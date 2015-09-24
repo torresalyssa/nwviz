@@ -2,15 +2,25 @@
 NW.js visualizer
 
 ## To get it up and running
-- Put in Activ8or credentials in **line 72** of **app/nwviz.module.js**:  
-   ```javascript
-   actv8API.authorize(username, password)
+- Put in Activ8or credentials in **config.json**:  
+   ```json
+   "a8uname": "username",
+   "a8pwd": "password"
    ```
    
-- Put in CMS credentials in **line 48** of **app/shared/Services/PlaylistService.js**:  
-   ```javascript
-   .send({username: username, password: password})
+- Put in CMS credentials in **config.json**:  
+   ```json
+   "cmsuname": "username",
+   "cmspwd": "password"
    ```
+   
+- Put default CMS address, venue ID, and Activ8or IP in **config.json**:
+    ```json
+    "defaultCmsAddr": "https://commtix.appdelegates.net/ct/",
+    "defaultVenueId": "0",
+    "defaultA8Ip": "127.0.0.1"
+    ```
+    
    
 - To run the app from the terminal, type in the path to the nwjs executable and then the path to the nwviz app:
     ```
