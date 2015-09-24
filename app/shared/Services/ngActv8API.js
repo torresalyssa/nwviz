@@ -194,7 +194,7 @@ angular.module('ngActiv8', [])
                     $log.warn(data);
                     $log.warn("ngActv8API: authorize failure");
                     //handleRESTError(data, status, deferred);
-                    $rootScope.$broadcast('NOT-AUTHORIZED');
+                    $rootScope.$broadcast('NOT_AUTHORIZED');
 
                 });
 

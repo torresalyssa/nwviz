@@ -16,15 +16,8 @@ var app = angular.module('nwVizApp', [
 
 
 
-app.config(function($sceDelegateProvider) {
-
+app.config(function() {
     console.info("app.CONFIGing");
-
-    $sceDelegateProvider.resourceUrlWhitelist([
-        'self',
-        'https://commtix.appdelegates.net/**'
-    ]);
-
 });
 
 
@@ -63,12 +56,6 @@ app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, 
 
 
         $rootScope.$on('CONFIGS_LOADED', function() {
-            var cmsUrl = userDefaults.getStringForKey("cmsAddr", configs.defaultCmsAddr);
-
-            if (cmsUrl) {
-                cmsUrl += cmsUrl.slice(-1) == '/' ? '**' : '/**';
-                $sce.trustAsResourceUrl(cmsUrl);
-            }
 
             var a8Ip = userDefaults.getStringForKey("a8Ip", configs.defaultA8Ip);
 
@@ -95,7 +82,7 @@ app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, 
                 })
         });
 
-        $rootScope.$on('NOT-AUTHORIZED', function() {
+        $rootScope.$on('NOT_AUTHORIZED', function() {
             $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on ' + a8Origin + '.';
             $timeout(cacheService.clear, 4000);
         });
