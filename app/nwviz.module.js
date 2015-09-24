@@ -87,13 +87,17 @@ app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, 
 
             actv8API.authorize(configs.a8uname, configs.a8pwd)
 
-                .then(function() {
+                .then(function () {
                     cacheService.clear();
+
+                }, function() {
+                    $log.warn("Not able to log in to Activ8or.");
                 })
         });
 
         $rootScope.$on('NOT-AUTHORIZED', function() {
-            $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on ' + a8Origin + '. Press ESC to configure options.';
+            $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on ' + a8Origin + '.';
+            $timeout(cacheService.clear, 4000);
         });
 
         $rootScope.$on('CACHE_EMPTY', function() {
