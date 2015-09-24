@@ -26,6 +26,10 @@ NW.js visualizer
     ```
     /Applications/nwjs.app/Contents/MacOS/nwjs /path/to/nwviz
     ```
+
+- To distribute on a Mac as a single executable, run `zip -r ../app.nw *` to create your **app.nw** right outside the project directory, and then replace the **app.nw** in your NWJS application (located at `/path/to/nwjs.app/Contents/Resources/app.nw`) with your **app.nw**.
+  - To change the app's icon, modify `nwjs.app/Contents/Resources/nw.icns`.
+  - To add information about the app, modify `nwjs.app/Contents/Info.plist`.
   
 ## Additional notes
 - Press ESC at any point to view and change the A8 IP address, the CMS address, and the venue ID.
