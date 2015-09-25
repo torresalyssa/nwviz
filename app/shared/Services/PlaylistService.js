@@ -39,14 +39,15 @@ app.factory('playlistService',
 
             var deferred = $q.defer();
 
-            getToken()
-                .then(function() {
+            //MAK, discovered getting the token should not be necessary, but need to test
+            //getToken()
+             //   .then(function() {
                     superagent
                         .post(path + loginExt)
 
                         .send({username: configs.cmsuname, password: configs.cmspwd})
 
-                        .set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
+                        //.set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
                         .set('Accept', 'application/json')
                         .end(function (err, res) {
                             if(err) {
@@ -55,9 +56,10 @@ app.factory('playlistService',
                                 deferred.resolve({data: res});
                             }
                         })
-                }, function(error) {
-                    deferred.reject('Error logging in to the content management system. Make sure credentials are correct. Press ESC to configure CMS address.');
-                });
+
+               // }, function(error) {
+               //     deferred.reject('Error logging in to the content management system. Make sure credentials are correct. Press ESC to configure CMS address.');
+               // });
 
             return deferred.promise;
         };
