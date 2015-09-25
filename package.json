@@ -7,7 +7,9 @@
   "nodejs": true,
   "window": {
     "title": "AppDelegates Visualizer",
-    "always-on-top": true
+    "always-on-top": true,
+    "width": 1300,
+    "height": 700
   },
 
   "dependencies": {

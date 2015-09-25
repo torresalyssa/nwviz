@@ -23,7 +23,8 @@ app.config(function ($routeProvider) {
         })
 
         .when('/loading', {
-            templateUrl: 'app/components/LoadingView/loadingview.partial.html'
+            templateUrl: 'app/components/LoadingView/loadingview.partial.html',
+            controller: 'loadViewController'
         })
 
         .when('/config', {

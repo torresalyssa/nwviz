@@ -51,3 +51,11 @@ NW.js visualizer
 
 ## Issues
 - Right now, the JS visualizers are displayed for a certain amount of time (specified in their info.json file). For some visualizers, it might make more sense to have them display based on some other metric. To do this, there must be some sort of communication between the embedded viz and the app so the app can listen for when the viz signals it is done.
+
+- I am getting the venue ID, but right now that information isn't used anywhere.
+
+- When the JS visualizers don't work (a8 login is wrong, a8 site origin is wrong, lost internet connection, etc.) they don't show anything. I think this is something that has to be handled in the JS visualizers and not the app, though.
+
+- Put in a timeout in CacheService and PlaylistService get/post methods so an error is displayed if there is no internet connection, not sure if this is the best way or if the timeout time is appropriate.
+
+- Also put timeout in ngActv8API for authorize call

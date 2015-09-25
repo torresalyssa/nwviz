@@ -1,7 +1,11 @@
 <div class="loading-content">
     <img class="loading-img" src="assets/img/ad-logo-2014.png"/>
-    <div class="message">
-        <img src="assets/img/ad-spinner.gif"/>
-        <p>{{loadingMsg}}</p>
+    <div class="message" ng-show="!fatalError">
+        <img src="assets/img/ad-spinner.gif"/><br><br>
+        <span>{{loadingMsg}}</span>
+    </div>
+    <div class="error-message" ng-show="fatalError">
+        <span>{{errorMsg}}</span><br><br>
+        <button ng-click="restart()">Restart</button>
     </div>
 </div>

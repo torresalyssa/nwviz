@@ -1,7 +1,7 @@
 
 /*********************************
 
- File:       angviz.module
+ File:       nwviz.module
  Function:   Base App
  Copyright:  AppDelegates LLC
  Date:       3/10/15
@@ -12,21 +12,26 @@
 var app = angular.module('nwVizApp', [
     'ngRoute', 'ngSanitize',
     'ngAnimate', 'ui.event',
-    'userdefaults.service', 'ngActiv8'])
+    'userdefaults.service', 'ngActiv8']);
 
 
 
-app.config(function() {
+app.config(function($httpProvider) {
     console.info("app.CONFIGing");
 });
 
 
-app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, actv8API, cacheService, userDefaults) {
+app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8API, cacheService, userDefaults) {
 
-        var configs;
         var a8Origin, cmsAddr, venueId;
 
+        $rootScope.configs = undefined;
+
+        $rootScope.errorMsg = "";
+        $rootScope.fatalError = false;
+
         $rootScope.loadingMsg = 'Getting configuration';
+
         $timeout(function () {
             $location.path('loading')
         });
@@ -39,28 +44,57 @@ app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, 
                 fs.readJson("config.json", function(err, object) {
                     if (err) {
                         $log.error("No config.json file was found");
-                        $rootScope.loadingMsg("No config.json file was found. Please add one!");
+                        $rootScope.errorMsg = "No config.json file was found. Please add one!";
+                        $rootScope.$broadcast('FATAL_ERROR');
                     }
                     else {
-                        configs = object;
-                        $rootScope.$broadcast('CONFIGS_LOADED');
+                        try {
+                            object.a8uname.x;
+                            object.a8pwd.x;
+                            object.cmsuname.x;
+                            object.cmspwd.x;
+                            object.defaultCmsAddr.x;
+                            object.defaultA8Ip.x;
+
+                            $rootScope.configs = object;
+                            $rootScope.$broadcast('CONFIGS_LOADED');
+                        }
+                        catch (err) {
+                            $log.error("config.json is malformed");
+                            $rootScope.errorMsg = "The config.json file is missing necessary fields.";
+                            $rootScope.$broadcast('FATAL_ERROR');
+                        }
                     }
                 });
             }
 
             else {
-                configs = object;
-                $rootScope.$broadcast('CONFIGS_LOADED');
+                try {
+                    object.a8uname.x;
+                    object.a8pwd.x;
+                    object.cmsuname.x;
+                    object.cmspwd.x;
+                    object.defaultCmsAddr.x;
+                    object.defaultA8Ip.x;
+
+                    $rootScope.configs = object;
+                    $rootScope.$broadcast('CONFIGS_LOADED');
+                }
+                catch (err) {
+                    $log.error("config.json is malformed");
+                    $rootScope.errorMsg = "The config.json file is missing necessary fields.";
+                    $rootScope.$broadcast('FATAL_ERROR');
+                }
             }
         });
 
 
         $rootScope.$on('CONFIGS_LOADED', function() {
 
-            var a8Ip = userDefaults.getStringForKey("a8Ip", configs.defaultA8Ip);
+            var a8Ip = userDefaults.getStringForKey("a8Ip", $rootScope.configs.defaultA8Ip);
 
-            venueId = userDefaults.getStringForKey("venueId", configs.defaultVenueId);
-            cmsAddr = userDefaults.getStringForKey("cmsAddr", configs.defaultCmsAddr);
+            venueId = userDefaults.getStringForKey("venueId", $rootScope.configs.defaultVenueId);
+            cmsAddr = userDefaults.getStringForKey("cmsAddr", $rootScope.configs.defaultCmsAddr);
             a8Origin = 'http://' + a8Ip + ':1337';
 
             userDefaults.setStringForKey('a8Ip', a8Ip);
@@ -72,7 +106,7 @@ app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, 
             // Note: cannot use file:// with node webkit
             actv8API.setSiteOrigin(a8Origin);
 
-            actv8API.authorize(configs.a8uname, configs.a8pwd)
+            actv8API.authorize($rootScope.configs.a8uname, $rootScope.configs.a8pwd)
 
                 .then(function () {
                     cacheService.clear();
@@ -83,18 +117,24 @@ app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, 
         });
 
         $rootScope.$on('NOT_AUTHORIZED', function() {
-            $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on ' + a8Origin + '.';
-            $timeout(cacheService.clear, 4000);
+            $rootScope.loadingMsg = 'Error logging in to Activ8or. Make sure your credentials are correct and you have Activ8or running on '
+                + a8Origin + '. Press ESC to change the Activ8or IP address. Continuing app...';
+            $timeout(cacheService.clear, 5000);
         });
 
         $rootScope.$on('CACHE_EMPTY', function() {
             $rootScope.loadingMsg = 'Cache successfully emptied.';
-            playlistService.init(cmsAddr, configs);
+            playlistService.init(cmsAddr);
         });
 
         $rootScope.$on('CACHE_NOT_EMPTY', function() {
-            $rootScope.loadingMsg = 'Error emptying cache. Try restarting.';
+            $rootScope.errorMsg = 'Error emptying cache. Try restarting.';
+            $rootScope.$broadcast('FATAL_ERROR');
         });
+
+        $rootScope.$on('FATAL_ERROR', function() {
+            $rootScope.fatalError = true;
+        })
 
     }
 );

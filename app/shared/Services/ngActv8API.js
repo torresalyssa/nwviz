@@ -180,7 +180,7 @@ angular.module('ngActiv8', [])
             $log.info("ngActv8API: authorize called");
             var deferred = $q.defer();
 
-            $http.post(_siteOrigin + '/auth/local', {identifier: user, password: pass}).
+            $http.post(_siteOrigin + '/auth/local', {identifier: user, password: pass}, {timeout: 15000}).
                 success(function (data, status, headers, config) {
                     $log.info("ngActv8API: authorized OK");
                     service.authorized = true;

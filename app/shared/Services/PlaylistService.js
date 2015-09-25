@@ -1,7 +1,3 @@
-/**
- * Created by mkahn on 8/21/15.
- */
-
 app.factory('playlistService',
     function ($rootScope, $location, $timeout, $log, $http, cacheService, $q) {
         "use strict";
@@ -35,7 +31,7 @@ app.factory('playlistService',
         }
 
 
-        service.login = function(configs) {
+        service.login = function() {
 
             var deferred = $q.defer();
 
@@ -44,31 +40,31 @@ app.factory('playlistService',
                     superagent
                         .post(path + loginExt)
 
-                        .send({username: configs.cmsuname, password: configs.cmspwd})
+                        .send({username: $rootScope.configs.cmsuname, password: $rootScope.configs.cmspwd})
 
                         .set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
                         .set('Accept', 'application/json')
                         .end(function (err, res) {
                             if(err) {
-                                deferred.reject('Error logging in to the content management system. Make sure credentials and CMS address are correct. Press ESC to configure CMS address.');
+                                deferred.reject('Error logging in to the content management system. Make sure credentials and CMS address are correct and you have an internet connection. Press ESC to configure CMS address.');
                             } else {
                                 deferred.resolve({data: res});
                             }
                         })
                 }, function(error) {
-                    deferred.reject('Error logging in to the content management system. Make sure credentials are correct. Press ESC to configure CMS address.');
+                    deferred.reject('Error logging in to the content management system. Make sure credentials and CMS address are correct and you have an internet connection. Press ESC to configure CMS address.');
                 });
 
             return deferred.promise;
         };
 
-        service.init = function (endpoint, configs) {
+        service.init = function (endpoint) {
             var nodes, tmp;
             path = endpoint;
 
             $rootScope.loadingMsg = "Logging in to CMS";
 
-            service.login(configs)
+            service.login()
 
                 .then(function () {
                     $http.get(path + playlistExt)
@@ -106,7 +102,8 @@ app.factory('playlistService',
 
                 }, function(error) {
                     $log.error(error);
-                    $rootScope.loadingMsg = error;
+                    $rootScope.errorMsg = error;
+                    $rootScope.$broadcast('FATAL_ERROR');
                 })
 
         };
@@ -134,7 +131,9 @@ app.factory('playlistService',
                 else {
                     service.playlistValid = false;
                     $log.error('Media for playlist did not load properly.');
-                    $rootScope.loadingMsg = 'Media for playlist did not load properly. Either the playlist is empty or there was an issue getting the individual media items. Check '+  path + ' to make sure you have a valid playlist loaded.';
+                    $rootScope.errorMsg = 'Media for playlist did not load properly. Either the playlist is empty '
+                        + 'or there was an issue getting the individual media items. Check '+  path + ' to make sure you have a valid playlist loaded.';
+                    $rootScope.$broadcast('FATAL_ERROR');
                 }
             }
 
@@ -161,14 +160,7 @@ app.factory('playlistService',
                     }
                     catch(err) {
                         $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. " + err);
-                        $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
-                        $timeout(service.processPlaylist, 3000);
-                        return;
-                    }
-
-                    if (typeof current.type !== 'string') {
-                        $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
-                        $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                        $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item...';
                         $timeout(service.processPlaylist, 3000);
                         return;
                     }
@@ -182,8 +174,8 @@ app.factory('playlistService',
                                 current.duration = data.data['field_duration'].und[0].value ? data.data['field_duration'].und[0].value : 5;
                             }
                             catch(err) {
-                                $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
-                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                                $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item... ");
+                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item...';
                                 $timeout(service.processPlaylist, 3000);
                                 return;
                             }
@@ -194,13 +186,15 @@ app.factory('playlistService',
                                 .then(
                                 function(success) {
                                     $log.info(success);
+                                    service.playlist.push(current);
                                     service.processPlaylist();
                                 },
                                 function(error) {
                                     $log.error(error);
                                     current.supported = false;
-                                    $rootScope.loadingMsg = 'Image file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
-                                    //$timeout(service.processPlaylist, 3000);
+                                    $rootScope.loadingMsg = 'Image file at ' + src + ' could not be found.'
+                                        +' Make sure the file is uploaded and included in the playlist properly. Processing next item...';
+                                    $timeout(service.processPlaylist, 3000);
                                 });
                             break;
 
@@ -213,14 +207,17 @@ app.factory('playlistService',
                             }
                             catch(err) {
                                 $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
-                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item...';
                                 $timeout(service.processPlaylist, 3000);
                                 return;
                             }
 
                             if (filetype == 'video/mp4') {
-                                $rootScope.loadingMsg = 'The video ' + data.data['field_video'].und[0].filename + ' is an mp4 file and is not supported by NW.js. Please convert it to VP8 (.webm, .mkv, .mov).';
-                                break;
+                                $rootScope.loadingMsg = 'The video ' + data.data['field_video'].und[0].filename
+                                    + ' is an mp4 file and is not supported. Processing next item...';
+                                $log.error($rootScope.loadingMsg);
+                                $timeout(service.processPlaylist, 3000);
+                                return;
                             }
 
                             current.src = dest;
@@ -229,13 +226,14 @@ app.factory('playlistService',
                                 .then(
                                 function(success) {
                                     $log.info(success);
+                                    service.playlist.push(current);
                                     service.processPlaylist();
                                 },
                                 function(error) {
                                     $log.error(error);
                                     current.supported = false;
                                     $rootScope.loadingMsg = 'Video file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
-                                    //$timeout(service.processPlaylist, 3000);
+                                    $timeout(service.processPlaylist, 3000);
                                 });
                             break;
 
@@ -260,34 +258,8 @@ app.factory('playlistService',
                                 return;
                             }
 
-                            if (filetype == 'application/zip') {
-                                current.type = 'visualizer_pkg';
 
-                                dest = 'cache/viz';
-                                current.src = dest + '/' + filename.replace('.zip', '') + '/index.html';
-
-                                cacheService.unzipAndPipe(src, dest)
-                                    .then(
-                                    function(success) {
-                                        $log.info(success);
-                                        service.processPlaylist();
-                                    },
-                                    function(error) {
-                                        $log.error(error);
-                                        current.supported = false;
-
-                                        if (error == 'GET_ERROR') {
-                                            $rootScope.loadingMsg = 'Visualizer file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
-                                        }
-                                        else {
-                                            $rootScope.loadingMsg = 'Error unzipping file ' + src + '. Try restarting or using a .tgz file instead.';
-                                        }
-
-                                        //service.processPlaylist();
-                                    });
-                            }
-
-                            else if (filetype == 'application/x-tar'){
+                            if (filetype == 'application/x-tar'){
                                 current.type = 'visualizer_pkg';
 
                                 dest = 'cache/viz';
@@ -297,6 +269,7 @@ app.factory('playlistService',
                                     .then(
                                     function(success) {
                                         $log.info(success);
+                                        service.playlist.push(current);
                                         service.processPlaylist();
                                     },
                                     function(error) {
@@ -307,10 +280,10 @@ app.factory('playlistService',
                                             $rootScope.loadingMsg = 'Visualizer file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
                                         }
                                         else {
-                                            $rootScope.loadingMsg = 'Error extracting file ' + src + '. Try restarting.';
+                                            $rootScope.loadingMsg = 'Error extracting file ' + src + '.';
                                         }
 
-                                        //service.processPlaylist();
+                                        $timeout(service.processPlaylist, 3000);
                                     });
                             }
 
@@ -324,6 +297,7 @@ app.factory('playlistService',
                                     .then(
                                     function(success) {
                                         $log.info(success);
+                                        service.playlist.push(current);
                                         service.processPlaylist();
                                     },
                                     function(error) {
@@ -334,34 +308,18 @@ app.factory('playlistService',
                                             $rootScope.loadingMsg = 'Visualizer file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
                                         }
                                         else {
-                                            $rootScope.loadingMsg = 'Error extracting file ' + src + '. Try restarting.';
+                                            $rootScope.loadingMsg = 'Error extracting file ' + src + '.';
                                         }
 
-                                        //service.processPlaylist();
-                                    });
-                            }
-
-                            else if (filetype == 'application/js'){
-                                dest = 'cache/js/' + filename.replace('.txt', '');
-                                current.src = dest;
-
-                                cacheService.getFileAndPipe(src, dest)
-                                    .then(
-                                    function(success) {
-                                        $log.info(success);
-                                        service.processPlaylist();
-                                    },
-                                    function(error) {
-                                        $log.error(error);
-                                        current.supported = false;
-                                        $rootScope.loadingMsg = 'JS file at ' + src + ' could not be found. Make sure the file is uploaded and included in the playlist properly.';
-                                        //service.processPlaylist();
+                                        $timeout(service.processPlaylist, 3000);
                                     });
                             }
 
                             else {
-                                $log.error("Error: JSON for node " + nodeNum + " is malformed. Processing next item. ");
-                                $rootScope.loadingMsg = 'The JSON file at ' + path + mediaExt + nodeNum + '.json is malformed. Processing next item.';
+                                $log.error("Error: Filetype " + filetype + " for node " + nodeNum +
+                                    " is not supported. Processing next item...");
+                                $rootScope.loadingMsg = 'Unsupported filetype ' + filetype
+                                    + ' detected. Processing next item...';
                                 $timeout(service.processPlaylist, 3000);
                                 return;
                             }
@@ -371,12 +329,11 @@ app.factory('playlistService',
                         default:
                             current.supported = false;
                             $log.error("Unsupported type (" + current.type + ") detected in playlist.");
+                            $rootScope.loadingMsg = "Unsupported type (" + current.type + ") detected in playlist."
+                                + " Processing next item...";
+                            $timeout(service.processPlaylist, 3000);
                             break;
 
-                    }
-
-                    if(current.supported) {
-                        service.playlist.push(current);
                     }
 
                 },
@@ -457,7 +414,7 @@ app.factory('playlistService',
 
                 default:
                     //This shouldn't crash in production
-                    throw new Error("Malformed JSON, you dope. Unrecognized type: " + nextItem.type);
+                    throw new Error("Malformed JSON. Unrecognized type: " + nextItem.type);
 
             }
 

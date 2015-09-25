@@ -1,5 +1,5 @@
 app.controller("configViewController",
-    function ($scope, $log, $timeout, $window, userDefaults) {
+    function ($rootScope, $scope, $log, $timeout, $window, userDefaults) {
 
         $scope.vizSettings = {
             a8Ip: undefined,
@@ -7,9 +7,9 @@ app.controller("configViewController",
             venueId: undefined
         };
 
-        $scope.vizSettings.a8Ip = userDefaults.getStringForKey("a8Ip", "127.0.0.1");
-        $scope.vizSettings.cmsAddr = userDefaults.getStringForKey("cmsAddr", "https://commtix.appdelegates.net/ct/");
-        $scope.vizSettings.venueId = userDefaults.getStringForKey("venueId", "0");
+        $scope.vizSettings.a8Ip = userDefaults.getStringForKey("a8Ip", $rootScope.configs.defaultA8Ip);
+        $scope.vizSettings.cmsAddr = userDefaults.getStringForKey("cmsAddr", $rootScope.configs.defaultCmsAddr);
+        $scope.vizSettings.venueId = userDefaults.getStringForKey("venueId", $rootScope.configs.defaultVenueId);
 
         $scope.venueIdRegex = /^\d+$/;
         $scope.ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
@@ -47,9 +47,9 @@ app.controller("configViewController",
         };
 
         $scope.onReset = function() {
-            $scope.vizSettings.a8Ip = "127.0.0.1";
-            $scope.vizSettings.cmsAddr = "https://commtix.appdelegates.net/ct/";
-            $scope.vizSettings.venueId = "0";
+            $scope.vizSettings.a8Ip = $rootScope.configs.defaultA8Ip;
+            $scope.vizSettings.cmsAddr = $rootScope.configs.defaultCmsAddr;
+            $scope.vizSettings.venueId = $rootScope.configs.defaultVenueId;
         };
 
     });

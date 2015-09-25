@@ -32,13 +32,39 @@ object {
 
 .message {
     z-index: 1;
-    position: fixed;
-    width: 100%;
+    width: 50%;
     height: 100%;
-    top: 60%;
+    margin-top: 15%;
+    margin-left: auto;
+    margin-right: auto;
     text-align: center;
     color: darkgray;
     font-family: Verdana, sans-serif;
+}
+
+.error-message {
+    z-index: 1;
+    width: 50%;
+    height: 100%;
+    margin-top: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    color: red;
+    font-family: Verdana, sans-serif;
+}
+
+.error-message button {
+    border-style: none;
+    background-color:#419aba;
+    border-radius:3px;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family: Verdana, sans-serif;
+    font-size:15px;
+    padding:6px 15px;
+    outline:none
 }
 
 .settings-content {
@@ -88,7 +114,7 @@ object {
     font-family: Verdana, sans-serif;
     font-size:15px;
     padding:6px 15px;
-    outline:none
+    outline:none;
 }
 
 .settings-content button:disabled {
