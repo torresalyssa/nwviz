@@ -1,3 +1,4 @@
+
 /*********************************
 
  File:       angviz.module
@@ -15,15 +16,9 @@ var app = angular.module('nwVizApp', [
     'ngActiv8orLite'])
 
 
-app.config(function ($sceDelegateProvider) {
 
+app.config(function() {
     console.info("app.CONFIGing");
-
-    $sceDelegateProvider.resourceUrlWhitelist([
-        'self',
-        'https://commtix.appdelegates.net/**'
-    ]);
-
 });
 
 
@@ -61,16 +56,9 @@ app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, 
             });
 
 
-            //Done as a listener so it is easily called from other controllers
-            $rootScope.$on('CONFIGS_LOADED', function () {
-                var cmsUrl = userDefaults.getStringForKey("cmsAddr", configs.defaultCmsAddr);
+        $rootScope.$on('CONFIGS_LOADED', function() {
 
-                if (cmsUrl) {
-                    cmsUrl += cmsUrl.slice(-1) == '/' ? '**' : '/**';
-                    $sce.trustAsResourceUrl(cmsUrl);
-                }
-
-                var a8Ip = userDefaults.getStringForKey("a8Ip", configs.defaultA8Ip);
+            var a8Ip = userDefaults.getStringForKey("a8Ip", configs.defaultA8Ip);
 
                 venueId = userDefaults.getStringForKey("venueId", configs.defaultVenueId);
                 cmsAddr = userDefaults.getStringForKey("cmsAddr", configs.defaultCmsAddr);
@@ -85,8 +73,7 @@ app.run(function ($sce, $rootScope, $location, $log, playlistService, $timeout, 
                 // Note: cannot use file:// with node webkit
                 actv8API.setSiteOrigin(a8Origin);
 
-                /*
-                 actv8API.authorize(configs.a8uname, configs.a8pwd)
+            actv8API.authorize(configs.a8uname, configs.a8pwd)
 
                  .then(function() {
                  cacheService.clear();
