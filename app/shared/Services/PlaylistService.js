@@ -35,25 +35,28 @@ app.factory('playlistService',
 
             var deferred = $q.defer();
 
-            getToken()
-                .then(function() {
+            //MAK, discovered getting the token should not be necessary, but need to test
+            //getToken()
+             //   .then(function() {
                     superagent
                         .post(path + loginExt)
 
                         .send({username: $rootScope.configs.cmsuname, password: $rootScope.configs.cmspwd})
 
-                        .set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
+                        //.set('X-CSRF-Token', $http.defaults.headers.common["X-CSRF-Token"])
                         .set('Accept', 'application/json')
                         .end(function (err, res) {
                             if(err) {
-                                deferred.reject('Error logging in to the content management system. Make sure credentials and CMS address are correct and you have an internet connection. Press ESC to configure CMS address.');
+                                deferred.reject('Error logging in to the content management system. '
+                                    + 'Make sure credentials and CMS address are correct and you have an internet connection. Press ESC to configure CMS address.');
                             } else {
                                 deferred.resolve({data: res});
                             }
                         })
-                }, function(error) {
-                    deferred.reject('Error logging in to the content management system. Make sure credentials and CMS address are correct and you have an internet connection. Press ESC to configure CMS address.');
-                });
+
+               // }, function(error) {
+               //     deferred.reject('Error logging in to the content management system. Make sure credentials are correct. Press ESC to configure CMS address.');
+               // });
 
             return deferred.promise;
         };
