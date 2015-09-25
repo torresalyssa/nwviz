@@ -56,6 +56,3 @@ NW.js visualizer
 
 - When the JS visualizers don't work (a8 login is wrong, a8 site origin is wrong, lost internet connection, etc.) they don't show anything. I think this is something that has to be handled in the JS visualizers and not the app, though.
 
-- Put in a timeout in CacheService and PlaylistService get/post methods so an error is displayed if there is no internet connection, not sure if this is the best way or if the timeout time is appropriate.
-
-- Also put timeout in ngActv8API for authorize call
