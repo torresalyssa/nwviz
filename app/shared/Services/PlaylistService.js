@@ -359,9 +359,7 @@ app.factory('playlistService',
         };
 
         service.getCurrent = function () {
-
             return service.playlist[_index];
-
         };
 
         service.next = function () {

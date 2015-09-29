@@ -15,11 +15,6 @@ var app = angular.module('nwVizApp', [
     'ngActiv8orLite'])
 
 
-app.config(function ($httpProvider) {
-    console.info("app.CONFIGing");
-});
-
-
 app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8API, cacheService, userDefaults) {
 
     var a8Origin, cmsAddr, venueId;

@@ -89,7 +89,7 @@ angular.module('ngActiv8orLite', [])
                 })
                 .catch ( function(err){
                     $log.warn("ngActv8API: authorize failure");
-                    $rootScope.$broadcast('NOT-AUTHORIZED');
+                    $rootScope.$broadcast('NOT_AUTHORIZED');
                     throw err;
                 });
 
