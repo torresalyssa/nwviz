@@ -1,5 +1,5 @@
 app.factory('playlistService',
-    function ($rootScope, $location, $timeout, $log, $http, cacheService, $q) {
+    function ($rootScope, $location, $timeout, $log, $http, cacheService, $q, userDefaults) {
         "use strict";
 
         var service = {};
@@ -63,6 +63,7 @@ app.factory('playlistService',
 
         service.init = function (endpoint) {
             var nodes, tmp;
+            var venueId, playlistJSON;
             path = endpoint;
 
             $rootScope.loadingMsg = "Logging in to CMS";
@@ -74,8 +75,31 @@ app.factory('playlistService',
 
                         .then(function (data) {
 
+                            // get desired playlist by venue id
+                            // TODO: Playlists are listed without unique ids on commtix, so how do we choose which one?
+                            venueId = parseInt(userDefaults.getStringForKey("venueId", $rootScope.configs.defaultVenueId));
+
+                            if (!venueId && venueId != 0) {
+                                $log.error("Error: invalid venue id " + venueId);
+                                $rootScope.loadingMsg = "Error: Invalid venue ID." +
+                                    " Venue ID must be a number. Press ESC to reconfigure.";
+                                return;
+                            }
+
                             try {
-                                tmp = data.data.nodes[0].node['Media Items'];
+                                playlistJSON = data.data.nodes[venueId].node;
+                            }
+                            catch(err) {
+                                $log.error("Error: Playlist at index venueId does not exist.");
+                                $rootScope.loadingMsg = "Error: No playlist exists for venue ID " + venueId +
+                                        ". Press ESC to enter a different venue ID.";
+                                return;
+                            }
+
+
+                            // get media item node ids for the playlist
+                            try {
+                                tmp = playlistJSON['Media Items'];
                             }
                             catch(err) {
                                 $log.error("Error: Playlist JSON is malformed. " + err);

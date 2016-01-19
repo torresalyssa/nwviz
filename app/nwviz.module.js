@@ -49,6 +49,7 @@ app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8A
                         object.cmsuname.x;
                         object.cmspwd.x;
                         object.defaultCmsAddr.x;
+                        object.defaultVenueId.x;
                         object.defaultA8Ip.x;
 
                         $rootScope.configs = object;
@@ -70,6 +71,7 @@ app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8A
                 object.cmsuname.x;
                 object.cmspwd.x;
                 object.defaultCmsAddr.x;
+                object.defaultVenueId.x;
                 object.defaultA8Ip.x;
 
                 $rootScope.configs = object;
@@ -101,7 +103,6 @@ app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8A
 
         // Note: cannot use file:// with node webkit
         actv8API.setSiteOrigin(a8Origin);
-
 
         // More concise, the way the cool kids roll
         actv8API.authorize($rootScope.configs.a8uname, $rootScope.configs.a8pwd).then(cacheService.clear);

@@ -3,11 +3,9 @@
   "name": "AngularViz",
   "version": "0.0.1",
   "description": "Angular visualizer",
-  "node-remote": "somesource",
   "nodejs": true,
   "window": {
     "title": "AppDelegates Visualizer",
-    "always-on-top": true,
     "width": 1300,
     "height": 700
   },

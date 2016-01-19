@@ -52,7 +52,7 @@ NW.js visualizer
 ## Issues
 - Right now, the JS visualizers are displayed for a certain amount of time (specified in their info.json file). For some visualizers, it might make more sense to have them display based on some other metric. To do this, there must be some sort of communication between the embedded viz and the app so the app can listen for when the viz signals it is done.
 
-- I am getting the venue ID, but right now that information isn't used anywhere.
+- Playlists on Commtix do not have a unique identifier, so choosing a playlist with the given venue ID is not working how it probably should be.
 
 - When the JS visualizers don't work (a8 login is wrong, a8 site origin is wrong, lost internet connection, etc.) they don't show anything. I think this is something that has to be handled in the JS visualizers and not the app, though.
 
