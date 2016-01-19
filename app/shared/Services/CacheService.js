@@ -25,135 +25,119 @@ app.factory('cacheService',
 
         service.getFileAndPipe = function(src, dest) {
 
-            var deferred = $q.defer();
-
             var stream = fs.createOutputStream(dest);
 
-            superagent
-                .get(src)
-                .end(function(err) {
+            return $q(function(resolve, reject) {
+                superagent
+                    .get(src)
+                    .end(function(err) {
 
-                    if (err) {
-                        deferred.reject('GET_ERROR');
-                    }
+                        if (err) {
+                            reject('GET_ERROR');
+                        }
 
-                    else {
-                        var request = superagent.get(src);
+                        else {
+                            var request = superagent.get(src);
 
-                        request.pipe(stream)
-                            .on('error', function () {
-                                deferred.reject('Error writing ' + src + ' to ' + dest);
-                            })
+                            request.pipe(stream)
+                                .on('error', function () {
+                                    reject('Error writing ' + src + ' to ' + dest);
+                                })
 
-                            .on('finish', function () {
-                                deferred.resolve('Writing file to ' + dest + ' successful');
-                            });
-                    }
-                });
-
-
-           return deferred.promise;
+                                .on('finish', function () {
+                                    resolve('Writing file to ' + dest + ' successful');
+                                });
+                        }
+                    });
+            });
         };
 
 
         service.unzipAndPipe = function(src, dest) {
 
-            var deferred = $q.defer();
-            var localZip = dest + 'temp.zip';
-            var request;
+            return $q(function(resolve, reject) {
+                superagent
+                    .get(src)
+                    .end(function(err) {
 
-            superagent
-                .get(src)
-                .end(function(err) {
+                        if(err) {
+                            reject('GET_ERROR');
+                        }
 
-                    if(err) {
-                        deferred.reject('GET_ERROR');
-                    }
+                        else {
 
-                    else {
+                            var request = superagent.get(src);
 
-                        request = superagent.get(src);
+                            request.pipe(unzip.Extract({path: dest}))
+                                .on('error', function() {
+                                    reject('Error unzipping file at ' + src);
+                                })
 
-                        request.pipe(unzip.Extract({path: dest}))
-                            .on('error', function() {
-                                deferred.reject('Error unzipping file at ' + src);
-                            })
+                                .on('finish', function() {
+                                    resolve('Writing file to ' + dest + ' successful');
+                                });
+                        }
 
-                            .on('finish', function() {
-                                deferred.resolve('Writing file to ' + dest + ' successful');
-                            });
-                    }
-
-                });
-
-
-            return deferred.promise;
-
+                    });
+            });
         };
 
 
         service.extractTarAndPipe = function(src, dest) {
 
-            var deferred = $q.defer();
+            return $q(function(resolve, reject) {
+                superagent
+                    .get(src)
+                    .end(function(err) {
 
-            superagent
-                .get(src)
-                .end(function(err) {
+                        if(err) {
+                            reject('GET_ERROR');
+                        }
 
-                    if(err) {
-                        deferred.reject('GET_ERROR');
-                    }
+                        else {
+                            var request = superagent.get(src);
 
-                    else {
-                        var request = superagent.get(src);
+                            request.pipe(tar.extract(dest))
+                                .on('error', function() {
+                                    reject('Error extracting file at ' + src);
+                                })
 
-                        request.pipe(tar.extract(dest))
-                            .on('error', function() {
-                                deferred.reject('Error extracting file at ' + src);
-                            })
+                                .on('finish', function() {
+                                    resolve('Writing file to ' + dest + ' successful');
+                                });
+                        }
 
-                            .on('finish', function() {
-                                deferred.resolve('Writing file to ' + dest + ' successful');
-                            });
-                    }
-
-                });
-
-
-            return deferred.promise;
+                    });
+            });
         };
 
 
         service.gunzipAndExtract = function(src, dest) {
 
-            var deferred = $q.defer();
+            return $q(function(resolve, reject) {
+                superagent
+                    .get(src)
+                    .end(function(err) {
 
-            superagent
-                .get(src)
-                .end(function(err) {
+                        if(err) {
+                            reject('GET_ERROR');
+                        }
 
-                    if(err) {
-                        deferred.reject('GET_ERROR');
-                    }
+                        else {
+                            var request = superagent.get(src);
 
-                    else {
-                        var request = superagent.get(src);
+                            request.pipe(gunzip()).pipe(tar.extract(dest))
+                                .on('error', function() {
+                                    reject('Error gunzipping file at ' + src);
+                                })
 
-                        request.pipe(gunzip()).pipe(tar.extract(dest))
-                            .on('error', function() {
-                                deferred.reject('Error gunzipping file at ' + src);
-                            })
+                                .on('finish', function() {
+                                    resolve('Writing file to ' + dest + ' successful');
+                                });
+                        }
 
-                            .on('finish', function() {
-                                deferred.resolve('Writing file to ' + dest + ' successful');
-                            });
-                    }
-
-                });
-
-
-            return deferred.promise;
-
+                    });
+            });
         };
 
         return service;

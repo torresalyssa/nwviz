@@ -52,7 +52,7 @@ app.factory('playlistService',
                             } else {
                                 deferred.resolve({data: res});
                             }
-                        })
+                        });
 
                // }, function(error) {
                //     deferred.reject('Error logging in to the content management system. Make sure credentials are correct. Press ESC to configure CMS address.');
@@ -122,7 +122,7 @@ app.factory('playlistService',
 
                             service.processPlaylist();
 
-                        }, function(error) {
+                        }, function() {
                             $rootScope.loadingMsg = "Could not load playlist. Make sure you have a playlist up on " + endpoint;
                         })
 
@@ -365,7 +365,7 @@ app.factory('playlistService',
 
                 },
 
-                function(error) {
+                function() {
                     $rootScope.loadingMsg = "Error getting media at " + path + mediaExt + nodeNum + '.json.' + ' Processing next item.';
                     $log.error('Error getting media information from: ' + path + mediaExt + nodeNum + '.json.' + '\nProcessing next media item.');
                     $timeout(service.processPlaylist, 3000);
