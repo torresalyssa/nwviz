@@ -1,3 +1,5 @@
 # Created by .ignore support plugin (hsz.mobi)
 locals/config.json
-locals
+cache
+node_modules
+assets/bower_components
