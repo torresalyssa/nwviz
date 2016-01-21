@@ -2,7 +2,7 @@
     <form name="configForm">
 
         <div class="input-group">
-            <p>Activ8or IP Address:&nbsp;&nbsp;
+            <p>Activ8or IP Address&nbsp;&nbsp;
                 <span class="input-group-addon">http://</span>
                 <input name="a8Ip" class="ip-input" ng-model="vizSettings.a8Ip" value="{{vizSettings.a8Ip}}" ng-pattern="ipRegex">
                 <span class="input-group-addon">:1337</span>
@@ -11,7 +11,7 @@
         </div>
 
         <div class="input-group">
-            <p>CMS Address:&nbsp;&nbsp;
+            <p>CMS Address&nbsp;&nbsp;
                 <input type="url" name="cmsAddr" class="url-input" ng-model="vizSettings.cmsAddr"
                        value="{{vizSettings.cmsAddr}}">
                 <span class="error-addon" ng-show="configForm.cmsAddr.$error.url">&nbsp;&nbsp;&nbsp;Invalid URL. (Hint: include the protocol, i.e. "http://...")</span>
@@ -19,7 +19,7 @@
         </div>
 
         <div class="input-group">
-            <p>Venue ID:&nbsp;&nbsp;
+            <p>Venue ID&nbsp;&nbsp;
                 <input name="venueId" class="integer-input" ng-model="vizSettings.venueId" value="{{vizSettings.venueId}}" ng-pattern="venueIdRegex">
                 <span class="error-addon" ng-show="configForm.venueId.$error.pattern">&nbsp;&nbsp;&nbsp;Invalid venue ID.</span>
             </p>

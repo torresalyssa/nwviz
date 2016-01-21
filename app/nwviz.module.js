@@ -120,7 +120,7 @@ app.run(function ($rootScope, $location, $log, playlistService, $timeout, actv8A
     });
 
     $rootScope.$on('CACHE_NOT_EMPTY', function () {
-        $rootScope.errorMsg = 'Error emptying cache. Try restarting.';
+        $rootScope.errorMsg = 'Error emptying cache.';
         $rootScope.$broadcast('FATAL_ERROR');
     });
 

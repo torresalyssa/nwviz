@@ -42,7 +42,8 @@ app.factory('vizService',
                     runScene(imgData, $rootScope, userDefaults);
                 }
                 catch (error) {
-                    $log.error(error);
+                    $log.error("Error running viz:" + error);
+                    $log.error("Error running viz may be because viz code does not have a proper runScene() method.");
                     $rootScope.$broadcast('VIZ_DONE');
                 }
             }

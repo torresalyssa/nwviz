@@ -50,7 +50,7 @@ app.controller("vizViewController",
             })
 
             .catch(function(err) {
-                $log.error("Could not get image data for visual at: " + item.src);
+                $log.error("Could not get image data for visual at " + item.src + ": " + err);
                 playlistService.completed();
             });
 
